@@ -1,37 +1,38 @@
-from Tkinter import *
-import tkFont
-import RPi.GPIO as GPIO
+from tkinter import *
+import tkinter.font 
+from gpiozero import LED
+import RPi.GPIO
+RPi.GPIO.setmode(RPi.GPIO.BCM)
 
-GPIO.setmode(GPIO.BOARD)
-GPIO.setup(40, GPIO.OUT)
-GPIO.output(40, GPIO.LOW)
+## hardware
+led = LED(12)
 
+## GUI
 win = Tk()
+win.title("LED GUI")
+myFont = tkinter.font.Font(family = 'Helvetica', size = 12, weight = 'bold')
+## win.geometry('800x480')
 
-myFont = tkFont.Font(family = 'Helvetica', size = 36, weight = 'bold')
+## Functions
+def ledToggle():
+        if led.is_lit:
+            led.off()
+            ledButton["text"] = "Turn LED On"        
+        else:
+            led.on()
+            ledButton["text"] = "Turn LED Off"
+            
+def close():
+    RPi.GPIO.cleanup()
+    win.destroy()
+            
+## Widgets
+ledButton = Button(win, text = "LED ON", font = myFont, command = ledToggle, bg = 'bisque2', height = 2, width = 12)
+ledButton.grid(row=0,column=1)
 
-def ledON():
-	print("LED button pressed")
-	if GPIO.input(40) :
- 		GPIO.output(40,GPIO.LOW)
-		ledButton["text"] = "LED ON"
-	else:
-		GPIO.output(40,GPIO.HIGH)
-                ledButton["text"] = "LED OFF"
+exitButton = Button(win, text = "EXIT", font = myFont, command = close, bg = 'red', height = 2, width = 6)
+exitButton.grid(row=1,column=1)
 
-def exitProgram():
-	print("Exit Button pressed")
-        GPIO.cleanup()
-	win.quit()	
+win.protocol("WM_DELETE_WINDOW", close) # exit cleanly
 
-
-win.title("First GUI")
-win.geometry('800x480')
-
-exitButton  = Button(win, text = "Exit", font = myFont, command = exitProgram, height =2 , width = 6) 
-exitButton.pack(side = BOTTOM)
-
-ledButton = Button(win, text = "LED ON", font = myFont, command = ledON, height = 2, width =8 )
-ledButton.pack()
-
-mainloop()
+win.mainloop() # loop forever 
